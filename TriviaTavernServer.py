@@ -153,6 +153,8 @@ def start_question(client, name):
     client_question_max = question_max
     client_question_index = 0
     
+    send_msg(client, "Remember: right answer have always first uppercase letter, for example Example. ")
+    
     while client_question_index != client_question_max and gameover == False:
         # Take random question, send to client and wait for answer
         single_question, single_answer = choose_question()
@@ -321,7 +323,7 @@ question = {1 : "What is the name of the track reserved for auto-mobile competit
             13 : "Name this stringless fictional character created by Carlo Collodi over one hundred years ago. ",
             14 : "What is another word for lexicon? ",
             15 : "What is the seventh planet from the sun? "}
-answer = {1 : "Autodromo",
+answer = {1 : "Racetrack",
             2 : "Excalibur" ,
             3 : "Scarf",
             4 : "Comb",
