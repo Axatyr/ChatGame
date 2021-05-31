@@ -164,7 +164,7 @@ def start_question(client, name):
         # Check if is correct and add score
         state = check_answer(client, client_answer, single_answer, name)
         check_score(client, state)
-        send_msg(client, clients[client] + " score: " + str(client_score[client]))
+        send_msg(client, clients[client] + " score: " + str(client_score[client]) + " ")
         client_question_index += 1
 
 def choose_question():
