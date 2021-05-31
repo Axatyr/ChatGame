@@ -1,0 +1,113 @@
+\documentclass[a4paper,12pt]{report}
+
+\usepackage{alltt, fancyvrb, url}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+\usepackage[italian]{babel}
+
+\usepackage[italian]{cleveref}
+
+\title{Progetto Programmazione di reti: \\ TriviaTavern}
+\author{Alessandro Palladino}
+\date{A.A 2020-2021}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents %inserisce indice
+
+\chapter{Introduzione}
+    Traccia 3:
+    Sfruttando il principio della CHAT vista a lezione implementate
+    un’architettura client-server per il supporto di un Multiplayer
+    Playing Game testuale.
+    I giocatori che accedono alla stanza sono accolti dal Master
+    (server) che assegna loro un ruolo e propone loro un menu con
+    tre opzioni, due delle quali celano una domanda mentre la
+    terza è l’opzione trabocchetto. Se sceglie l’opzione
+    trabocchetto viene eliminato dal gioco e quindi esce dalla chat.
+    Se seleziona invece una delle domande e risponde
+    correttamente al quesito acquisisce un punto, in caso contrario
+    perde un punto.
+    Il gioco ha una durata temporale finita; il giocatore che al
+    termine del tempo ha acquisito più punti è il vincitore.
+    
+\chapter{Specifiche progetto}
+    Il progetto ha come scopo quello di sviluppare un gioco stile chatgame dove una o più persone si sfidano in real time sfruttando una connessione in lan. \\
+    Esso si basa su due file: TriviaTavernServer e TriviaTavernClient. \\ 
+    TriviaTavernWithoutNetwork invece costituisce una prima versione semplificata senza l'uso di connessioni internet. \\
+    \section{TriviaTavernServer}
+    Rappresenta il lato server e costituisce il fulcro del gioco. \\
+    Esso può essere diviso in 3 blocchi: \\
+    \begin{itemize}
+        \item Il primo rappresenta le principali funzioni invocate dal main:
+            \begin{itemize}
+                \item accept\_connections() Accetta le connessioni in arrivo 
+                \item client\_manager() Gestisce la connessione con il singolo client
+                \item broadcast() Invia messaggi a tutti gli altri client connessi
+                \item send\_msg() Invia un messaggio al singolo client, semplifica il codice
+             \end{itemize}
+            
+        \item Il secondo rappresenta i metodi utilizzati dal blocco client\_manager():
+            \begin{itemize}
+                \item add\_player() Inizializza informazioni aggiuntive: ruolo e score.
+                \item user\_login() Avvisa agli altri utenti che una persona è entrata.
+                \item insert\_num\_player() Chiede quanti giocatori parteciperanno al gioco, viene richiesto solo una volta.
+                \item preliminary\_question() Assegna ad ogni giocatore una scelta da effettuare, l'utente attraverso l'inserimento di un numero selezionerà la risposta. Se dietro la propria scelta si cela un tranello la persona ha perso il gioco e verrà disconnessa dal client. Viceversa il giocatore può andare allo step successivo e quindi all'inizio del vero gioco.
+                \item start\_question() Invia domande diverse ad ogni client fino a quando qualcuno non finisce, avvisa inoltre se le risposte sono giuste o errate e il punteggio del giocatore.
+                \item choose\_question() Viene invocata per poter generare domande randomiche.
+                \item find\_winner() Trova il punteggio più alto, se ne è presente più di uno avviserà che è presente un pareggio, altrimenti stampa il nome del vincitore con il relativo punteggio.
+                \item client\_close() Chiude la connessione con il client e avvisa che l'utente ha abbandonato la chat.
+            \end{itemize}  
+            
+        \item Infine il terzo rappresenta i metodi usati per effettuare controlli di vario genere:
+            \begin{itemize}
+                \item check\_number() Controlla che l'input sia un numero e che sia compreso fra determinati parametri a seconda della funzione chiamante.
+                \item check\_player\_ready() Controlla che il numero di giocatori sia quello inserito inizialmente dal primo utente, avvisa se mancano o servono altre persone per poter iniziare a giocare
+                \item check\_answer() Controlla che la risposta sia corretta
+                \item check\_score() Aggiunge / sottrae punteggio a seconda che la risposta sia giusta / sbagliata
+                \item check\_quit() Controlla che non sia stata inserita la stringa \{quit\}. Se è stata inserita allora avvierà la chiusura della connessione.
+            \end{itemize}
+            
+        \end{itemize}
+    \section{TriviaTavernClient} 
+        Riguarda il lato client e viene utilizzato da uno o più utenti per poter interagire con il server. \\
+        Possiede i seguenti metodi: \\
+        \begin{itemize}
+            \item receive() Gestisce l'arrivo dei messaggi
+            \item send() Gestisce l'invio dei messaggi
+            \item on\_closing() Gestisce la chiusura della finestra
+        \end{itemize}
+        
+\chapter{Note di progetto}
+    In fase di progettazione si è pensato di rendere il gioco il più estensibile possibile di conseguenza basterà modificare le principali variabili per poter cambiare alcune parti del gioco.
+    Le variabili modificabili sono:
+    \begin{itemize}
+        \item role Basterà aggiungere altri valori al dizionario per poter aggiungere ulteriori ruoli.
+        \item max\_player Per poter aggiungere o ridurre il numero massimo di giocatori.
+        \item min\_player Per poter impostare un minimo di giocatori.
+        \item max\_option Per poter selezionare il numero massimo di scelte disponibili per la domanda preliminare a tranello.
+        \item question\_max Per modificare il numero di domande che verranno eseguite, di conseguenza la durata del gioco verrà modificata.
+        \item question ed answer Come per role basterà aggiungere valori per poter avere altre domande a disposizione.
+    \end{itemize}
+
+\chapter{Guida all'utente}
+    Per poter eseguire il gioco basterà avviare il file TriviaTavernServer e successivamente in un altro terminale TriviaTavernClient. \\
+    All'avvio del server esso si metterà in attesa di connessioni mentre all'avvio del client verrà chiesto di inserire il server host, se non si conosce può essere lasciato vuoto, e successivamente la porta del server host, qui digiteremo 53000. \\
+    Dopodiché si aprirà una finestra che ci spiega il funzionamento del gioco e ciò che dovremo digitare. Per poter giocare in più giocatori sarà sufficiente avviare più client che si connetteranno tutti allo stesso server seguendo la stessa procedura.
+    
+    Una volta che il gioco verrà avviato ad ogni giocatore viene chiesto di digitare un nome o un suo nickname e gli sarà attribuito un ruolo casuale che imposta un diverso valore di partenza in termini di punteggio. 
+    Verrà chiesto inoltre solo al primo utente di inserire il numero dei giocatori, dopodiché a tutti verrà chiesto di inserire un numero a scelta fra determinati valori. \\
+    Se il giocatore casca nel tranello ha perso e verrà disconnesso dal client. \\
+    Al termine di tutto ciò i superstiti aspetteranno che tutti i giocatori siano connessi, successivamente inizieranno ad apparire domande diverse a ciascun giocatore. \\
+    Il primo che risponde a più domande possibile fa terminare il gioco, vince però chi ha il punteggio più alto. In caso di parità essa verrà notificata ma non si sapranno i nomi dei giocatori. Poiché il gioco finisce i client vengono disconnessi automaticamente.
+
+\chapter{Contatti}
+    Numero Matricola: 0000902678 \\
+    Nome e cognome: Alessandro Palladino  \\
+    Mail: alessandro.palladin3@studio.unibo.it \\
+
+\end{document}
