@@ -43,7 +43,7 @@ def on_closing(event=None):
     window.destroy()
 
 window = tkt.Tk()
-window.title("The ChatGame")
+window.title("TriviaTavern")
 
 # Create the frame for message
 messages_frame = tkt.Frame(window)
